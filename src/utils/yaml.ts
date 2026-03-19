@@ -139,7 +139,7 @@ export function configToYaml(config: RorConfig): string {
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i]
         // A line at indent level 2 (2 spaces + non-space) that isn't a continuation of ACR
-        if (line.match(/^  [a-z]/) || line.trim() === '') {
+        if (line.match(/^ {2}[a-z]/) || line.trim() === '') {
           insertAfterLine = i
           break
         }

@@ -51,7 +51,6 @@ function getNodeStyle(nodeId: string, data: Record<string, unknown>) {
   const enabled = data.enabled as boolean | undefined
 
   // ── Shared HTML helpers ──
-  const font = 'ui-sans-serif,system-ui,-apple-system,sans-serif'
   const nid = (id: string) => `data-node-id="${id}"`
 
   if (nodeType === 'entry') {
@@ -623,8 +622,9 @@ export function AclFlowTab() {
       graphRef.current = graph
 
       // Single-click → open drawer
-      graph.on('node:click', (evt: any) => {
-        const nodeId = evt?.target?.id
+      graph.on('node:click', // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (evt: any) => {
+        const nodeId = evt?.target?.id as string | undefined
         if (typeof nodeId !== 'string') return
         if (nodeId.startsWith('block-')) { setSelectedBlockId(nodeId.replace('block-', '')); return }
         if (nodeId.startsWith('connector-')) {
@@ -648,8 +648,9 @@ export function AclFlowTab() {
       })
 
       // Hover highlighting — reuse shared functions
-      graph.on('node:pointerenter', (evt: any) => {
-        const nodeId = evt?.target?.id
+      graph.on('node:pointerenter', // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (evt: any) => {
+        const nodeId = evt?.target?.id as string | undefined
         if (typeof nodeId !== 'string') return
         const nodeData = nodeDataMap.get(nodeId)
         if (!nodeData) return
@@ -687,7 +688,7 @@ export function AclFlowTab() {
       graphRef.current = null
       graph.destroy()
     }
-  }, [graphData])
+  }, [graphData, setActiveTab, updateBlock])
 
   // Highlight the selected item + its related nodes when drawer is open
   useEffect(() => {
