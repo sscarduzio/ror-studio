@@ -1,4 +1,4 @@
-import { Dialog as DialogPrimitive } from 'radix-ui'
+import { Dialog as DialogPrimitive, VisuallyHidden } from 'radix-ui'
 import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -273,6 +273,7 @@ export function ConnectorDrawer({ target, onClose, onNavigate }: ConnectorDrawer
             if (e.key === 'ArrowDown') { e.preventDefault(); onNavigate('down') }
           }}
         >
+          <VisuallyHidden.Root><DialogPrimitive.Title>Edit Connector</DialogPrimitive.Title></VisuallyHidden.Root>
           {/* Header */}
           <div className={`flex items-center gap-3 px-5 py-3.5 border-b ${colors.bg} ${colors.border}`}>
             <div className="flex-1 min-w-0">

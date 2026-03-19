@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Dialog as DialogPrimitive } from 'radix-ui'
+import { Dialog as DialogPrimitive, VisuallyHidden } from 'radix-ui'
 import { X, ShieldCheck, ShieldX, Trash2 } from 'lucide-react'
 import { useEditorStore } from '@/store/editor-store'
 import { RuleEditor } from '@/components/acl/RuleEditor'
@@ -86,6 +86,7 @@ export function BlockDrawer({ blockId, onClose, onNavigate }: BlockDrawerProps) 
             if (e.key === 'ArrowDown') { e.preventDefault(); onNavigate('down') }
           }}
         >
+          <VisuallyHidden.Root><DialogPrimitive.Title>Edit Block</DialogPrimitive.Title></VisuallyHidden.Root>
           {/* Header */}
           <div className={cn(
             'flex items-center gap-3 px-5 py-3.5 border-b',

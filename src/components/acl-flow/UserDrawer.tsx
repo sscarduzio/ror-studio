@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Dialog as DialogPrimitive } from 'radix-ui'
+import { Dialog as DialogPrimitive, VisuallyHidden } from 'radix-ui'
 import { X, Trash2, Info } from 'lucide-react'
 import { useEditorStore } from '@/store/editor-store'
 import { Input } from '@/components/ui/input'
@@ -168,6 +168,7 @@ export function UserDrawer({ userIndex, onClose, onNavigate }: UserDrawerProps) 
             if (e.key === 'ArrowDown') { e.preventDefault(); onNavigate('down') }
           }}
         >
+          <VisuallyHidden.Root><DialogPrimitive.Title>Edit User</DialogPrimitive.Title></VisuallyHidden.Root>
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-3.5 border-b bg-purple-50/80 border-purple-200">
             <div className="flex-1 min-w-0">

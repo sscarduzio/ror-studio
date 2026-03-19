@@ -87,13 +87,22 @@ function TabBadge({ issues }: { issues: ValidationIssue[] | undefined }) {
 export function Sidebar() {
   const activeTab = useEditorStore((s) => s.activeTab)
   const setActiveTab = useEditorStore((s) => s.setActiveTab)
+  const config = useEditorStore((s) => s.config)
   const { issues, issuesByTab, errorCount, warningCount } = useValidation()
   const { revealLine } = useYamlEditor()
+
+  // Hide all sections except Getting Started when config is empty
+  const hasContent = config.access_control_rules.length > 0
+    || (config.users ?? []).length > 0
+    || (config.ldaps ?? []).length > 0
+    || (config.jwt ?? []).length > 0
+
+  const visibleSections = hasContent ? tabSections : tabSections.filter((s) => !s.header)
 
   return (
     <nav className="w-56 min-w-56 flex flex-col bg-transparent mr-2">
       <div className="flex-1 pt-0.5 pb-2 px-3 overflow-y-auto w-full">
-        {tabSections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.header ?? 'top'} className={section.header ? 'mt-6' : ''}>
             {section.header && (
               <div className="px-3 pt-1 pb-2 text-xs font-bold tracking-widest text-slate-500 uppercase">
@@ -127,8 +136,8 @@ export function Sidebar() {
         ))}
       </div>
 
-      {/* Validation summary */}
-      <div className="p-4 mx-3 mb-4 rounded-xl glass-panel text-left">
+      {/* Validation summary — only show when there's content */}
+      {hasContent && <div className="p-4 mx-3 mb-4 rounded-xl glass-panel text-left">
         <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-2">
           Validation
         </div>
@@ -166,7 +175,7 @@ export function Sidebar() {
             )}
           </div>
         )}
-      </div>
+      </div>}
     </nav>
   )
 }

@@ -59,7 +59,7 @@ export function YamlPreview({ onToggle, dock = 'bottom' }: YamlPreviewProps) {
             ) : (
               <ChevronDown className="w-4 h-4" />
             )}
-            {dock === 'right' ? 'YAML' : 'YAML Preview'}
+            Preview
             <span className="text-slate-400 font-medium ml-1">({lineCount} lines)</span>
           </button>
           <div className="flex items-center gap-1">
@@ -109,12 +109,12 @@ export function YamlPreview({ onToggle, dock = 'bottom' }: YamlPreviewProps) {
                       ? 'text-slate-300 cursor-not-allowed'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/60 hover:shadow-sm hover:border-slate-200'
                   )}
-                  aria-label="Copy YAML"
+                  aria-label="Copy"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent className="bg-slate-900 border-slate-800 text-white text-xs">{hasErrors ? 'Fix errors before copying' : 'Copy YAML'}</TooltipContent>
+              <TooltipContent className="bg-slate-900 border-slate-800 text-white text-xs">{hasErrors ? 'Fix errors before copying' : 'Copy'}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -127,12 +127,12 @@ export function YamlPreview({ onToggle, dock = 'bottom' }: YamlPreviewProps) {
                       ? 'text-slate-300 cursor-not-allowed'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/60 hover:shadow-sm hover:border-slate-200'
                   )}
-                  aria-label="Download YAML"
+                  aria-label="Download"
                 >
                   <Download className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent className="bg-slate-900 border-slate-800 text-white text-xs">{hasErrors ? 'Fix errors before downloading' : 'Download YAML'}</TooltipContent>
+              <TooltipContent className="bg-slate-900 border-slate-800 text-white text-xs">{hasErrors ? 'Fix errors before downloading' : 'Download'}</TooltipContent>
             </Tooltip>
           </div>
         </div>
