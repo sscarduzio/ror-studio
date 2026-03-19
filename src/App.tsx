@@ -17,11 +17,13 @@ function App() {
   const activeTab = useEditorStore((s) => s.activeTab)
   const wizardSeen = useEditorStore((s) => s.wizardSeen)
   const yamlDock = useEditorStore((s) => s.yamlDock)
+  const aclViewMode = useEditorStore((s) => s.aclViewMode)
   const setConfigSilent = useEditorStore((s) => s.setConfigSilent)
   const setEdition = useEditorStore((s) => s.setEdition)
   const setActiveTab = useEditorStore((s) => s.setActiveTab)
   const setWizardSeen = useEditorStore((s) => s.setWizardSeen)
   const setYamlDock = useEditorStore((s) => s.setYamlDock)
+  const setAclViewMode = useEditorStore((s) => s.setAclViewMode)
   const previewVisible = useEditorStore((s) => s.previewVisible)
 
   // Restore state from localStorage on mount — uses setConfigSilent
@@ -34,16 +36,17 @@ function App() {
       setActiveTab(saved.activeTab)
       setWizardSeen(saved.wizardSeen)
       setYamlDock(saved.yamlDock)
+      setAclViewMode(saved.aclViewMode)
     }
-  }, [setConfigSilent, setEdition, setActiveTab, setWizardSeen, setYamlDock])
+  }, [setConfigSilent, setEdition, setActiveTab, setWizardSeen, setYamlDock, setAclViewMode])
 
   // Auto-save to localStorage on every change
   useEffect(() => {
     const timeout = setTimeout(() => {
-      saveState({ config, edition, activeTab, wizardSeen, yamlDock })
+      saveState({ config, edition, activeTab, wizardSeen, yamlDock, aclViewMode })
     }, 500)
     return () => clearTimeout(timeout)
-  }, [config, edition, activeTab, wizardSeen, yamlDock])
+  }, [config, edition, activeTab, wizardSeen, yamlDock, aclViewMode])
 
   // Prevent browser back from leaving the SPA
   useEffect(() => {

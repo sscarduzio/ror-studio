@@ -1,11 +1,13 @@
 import type { RorConfig, Edition, TabId } from '@/schema/types'
 import type { YamlDock } from '@/store/editor-store'
+import type { AclViewMode } from '@/components/acl-flow/acl-view-modes'
 
 const STORAGE_KEY = 'ror-studio'
 const EDITION_KEY = 'ror-studio-edition'
 const WIZARD_KEY = 'ror-studio-wizard-seen'
 const TAB_KEY = 'ror-studio-active-tab'
 const DOCK_KEY = 'ror-studio-yaml-dock'
+const ACL_VIEW_KEY = 'ror-studio-acl-view'
 
 interface PersistedState {
   config: RorConfig
@@ -13,6 +15,7 @@ interface PersistedState {
   activeTab: TabId
   wizardSeen: boolean
   yamlDock: YamlDock
+  aclViewMode: AclViewMode
 }
 
 export function saveState(state: PersistedState): void {
@@ -22,6 +25,7 @@ export function saveState(state: PersistedState): void {
     localStorage.setItem(TAB_KEY, state.activeTab)
     localStorage.setItem(WIZARD_KEY, String(state.wizardSeen))
     localStorage.setItem(DOCK_KEY, state.yamlDock)
+    localStorage.setItem(ACL_VIEW_KEY, state.aclViewMode)
   } catch {
     // localStorage might be full or unavailable
   }
@@ -37,8 +41,9 @@ export function loadState(): PersistedState | null {
     const activeTab = (localStorage.getItem(TAB_KEY) as TabId) || 'getting-started'
     const wizardSeen = localStorage.getItem(WIZARD_KEY) === 'true'
     const yamlDock = (localStorage.getItem(DOCK_KEY) as YamlDock) || 'bottom'
+    const aclViewMode = (localStorage.getItem(ACL_VIEW_KEY) as AclViewMode) || 'graph'
 
-    return { config, edition, activeTab, wizardSeen, yamlDock }
+    return { config, edition, activeTab, wizardSeen, yamlDock, aclViewMode }
   } catch {
     return null
   }
@@ -50,4 +55,5 @@ export function clearState(): void {
   localStorage.removeItem(TAB_KEY)
   localStorage.removeItem(WIZARD_KEY)
   localStorage.removeItem(DOCK_KEY)
+  localStorage.removeItem(ACL_VIEW_KEY)
 }

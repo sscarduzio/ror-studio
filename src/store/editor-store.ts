@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { RorConfig, Edition, TabId, AccessControlBlock, UserDefinition } from '@/schema/types'
+import type { AclViewMode } from '@/components/acl-flow/acl-view-modes'
 
 const DEFAULT_CONFIG: RorConfig = {
   access_control_rules: [],
@@ -21,6 +22,7 @@ export interface EditorStore {
   expandedBlockIds: Set<string>
   yamlDock: YamlDock
   previewVisible: boolean
+  aclViewMode: AclViewMode
 
   // Undo/redo history (internal)
   _past: RorConfig[]
@@ -69,6 +71,9 @@ export interface EditorStore {
   setPreviewVisible: (visible: boolean) => void
   togglePreview: () => void
 
+  // ACL view mode
+  setAclViewMode: (mode: AclViewMode) => void
+
   // Generic field updater
   updateConfigField: (path: string, value: unknown) => void
 }
@@ -106,6 +111,7 @@ export const useEditorStore = create<EditorStore>()((set) => ({
   expandedBlockIds: new Set<string>(),
   yamlDock: 'right',
   previewVisible: true,
+  aclViewMode: 'graph',
   _past: [],
   _future: [],
 
@@ -148,6 +154,7 @@ export const useEditorStore = create<EditorStore>()((set) => ({
   setYamlDock: (dock) => set({ yamlDock: dock }),
   setPreviewVisible: (visible) => set({ previewVisible: visible }),
   togglePreview: () => set((s) => ({ previewVisible: !s.previewVisible })),
+  setAclViewMode: (mode) => set({ aclViewMode: mode }),
 
   undo: () =>
     set((state) => {

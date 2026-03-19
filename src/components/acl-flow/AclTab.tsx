@@ -5,11 +5,12 @@ import { AclFlowGraph } from './AclFlowGraph'
 import { AclCodeEditor } from './AclCodeEditor'
 import { AccessControlTab } from '@/components/acl/AccessControlTab'
 import { ViewModeToggle } from './ViewModeToggle'
-import { ACL_VIEW_MODES, type AclViewMode } from './acl-view-modes'
+import { ACL_VIEW_MODES } from './acl-view-modes'
 
 export function AclTab() {
   const config = useEditorStore((s) => s.config)
-  const [viewMode, setViewMode] = useState<AclViewMode>('graph')
+  const viewMode = useEditorStore((s) => s.aclViewMode)
+  const setViewMode = useEditorStore((s) => s.setAclViewMode)
   const [zoomActions, setZoomActions] = useState<{
     zoomIn: () => void
     zoomOut: () => void
