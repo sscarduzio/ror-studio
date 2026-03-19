@@ -91,7 +91,7 @@ function App() {
             <Header />
             <div className="flex-1 flex overflow-hidden">
               {hasContent && <Sidebar />}
-              <div className="flex-1 flex flex-col overflow-hidden bg-white/60 rounded-tl-xl shadow-sm mr-1.5 mb-1.5 border border-slate-200/40">
+              <div className={`flex-1 flex flex-col overflow-hidden ${hasContent ? 'bg-white/60 rounded-tl-xl shadow-sm mr-1.5 mb-1.5 border border-slate-200/40' : ''}`}>
                 {hasContent && previewVisible ? (
                   <Group orientation={yamlDock === 'right' ? 'horizontal' : 'vertical'} key={yamlDock}>
                     <Panel defaultSize={70} minSize={30}>

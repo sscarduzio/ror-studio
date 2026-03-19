@@ -17,12 +17,20 @@ const editions: { value: Edition; label: string }[] = [
 // ---------------------------------------------------------------------------
 
 function HistoryControls() {
+  const config = useEditorStore((s) => s.config)
   const undo = useEditorStore((s) => s.undo)
   const redo = useEditorStore((s) => s.redo)
   const pastLen = useEditorStore((s) => s._past.length)
   const futureLen = useEditorStore((s) => s._future.length)
   const hasPast = pastLen > 0
   const hasFuture = futureLen > 0
+
+  // Hide when config is empty
+  const hasContent = config.access_control_rules.length > 0
+    || (config.users ?? []).length > 0
+    || (config.ldaps ?? []).length > 0
+    || (config.jwt ?? []).length > 0
+  if (!hasContent) return null
 
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0
   const mod = isMac ? '\u2318' : 'Ctrl+'

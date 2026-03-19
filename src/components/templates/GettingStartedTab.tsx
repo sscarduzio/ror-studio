@@ -118,7 +118,7 @@ export function GettingStartedTab() {
   }, [parseAndImport])
 
   return (
-    <div className="relative w-full min-h-full text-slate-800">
+    <div className="relative w-full min-h-full text-slate-800 max-w-4xl mx-auto">
       <WizardModal open={wizardOpen} onOpenChange={setWizardOpen} />
       <TemplatePreviewDialog
         template={previewTemplate}
