@@ -150,6 +150,52 @@ function HistoryControls() {
 // ---------------------------------------------------------------------------
 // Header
 // ---------------------------------------------------------------------------
+// Edition selector — pixel-perfect segmented control with sliding pill
+// ---------------------------------------------------------------------------
+
+function EditionSelector({ edition, setEdition }: { edition: Edition; setEdition: (e: Edition) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [pillStyle, setPillStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 })
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const activeBtn = container.querySelector(`[data-edition="${edition}"]`) as HTMLElement | null
+    if (activeBtn) {
+      setPillStyle({
+        left: activeBtn.offsetLeft,
+        width: activeBtn.offsetWidth,
+      })
+    }
+  }, [edition])
+
+  return (
+    <div ref={containerRef} className="relative flex items-center ml-6 p-1 rounded-full bg-slate-100/80 border border-slate-200/50">
+      {/* Sliding pill */}
+      <div
+        className="absolute top-1 bottom-1 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-slate-200/60 transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{ left: pillStyle.left, width: pillStyle.width }}
+      />
+      {editions.map((ed) => (
+        <button
+          key={ed.value}
+          data-edition={ed.value}
+          onClick={() => setEdition(ed.value)}
+          className={cn(
+            'relative z-10 px-4 py-1.5 text-[12px] font-semibold tracking-wide transition-colors duration-150 rounded-full select-none',
+            edition === ed.value
+              ? 'text-teal-700'
+              : 'text-slate-400 hover:text-slate-600'
+          )}
+        >
+          {ed.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Preview toggle — show/hide YAML preview panel
 // ---------------------------------------------------------------------------
 
@@ -239,23 +285,8 @@ export function Header() {
           </span>
         </div>
 
-        {/* Edition selector */}
-        <div className="flex items-center ml-6 p-0.5 rounded-lg border border-slate-200/60 bg-white/40 backdrop-blur-md shadow-sm">
-          {editions.map((ed) => (
-            <button
-              key={ed.value}
-              onClick={() => setEdition(ed.value)}
-              className={cn(
-                'px-3 xl:px-4 py-1.5 text-xs font-bold transition-all duration-200 rounded-md',
-                edition === ed.value
-                  ? 'bg-white text-teal-700 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200/40'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/40 border border-transparent'
-              )}
-            >
-              {ed.label}
-            </button>
-          ))}
-        </div>
+        {/* Edition selector — segmented control with sliding indicator */}
+        <EditionSelector edition={edition} setEdition={setEdition} />
       </div>
 
       {/* Right: Preview toggle + History + help */}
