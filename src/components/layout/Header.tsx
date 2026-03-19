@@ -240,7 +240,13 @@ function PreviewToggle() {
 export function Header() {
   const edition = useEditorStore((s) => s.edition)
   const setEdition = useEditorStore((s) => s.setEdition)
+  const config = useEditorStore((s) => s.config)
   const [showShortcuts, setShowShortcuts] = useState(false)
+
+  const hasContent = config.access_control_rules.length > 0
+    || (config.users ?? []).length > 0
+    || (config.ldaps ?? []).length > 0
+    || (config.jwt ?? []).length > 0
   const shortcutsRef = useRef<HTMLDivElement>(null)
 
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0
@@ -285,8 +291,8 @@ export function Header() {
           </span>
         </div>
 
-        {/* Edition selector — segmented control with sliding indicator */}
-        <EditionSelector edition={edition} setEdition={setEdition} />
+        {/* Edition selector — only show when config has content */}
+        {hasContent && <EditionSelector edition={edition} setEdition={setEdition} />}
       </div>
 
       {/* Right: Preview toggle + History + help */}
