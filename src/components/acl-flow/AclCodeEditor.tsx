@@ -240,14 +240,14 @@ export function AclCodeEditor() {
       if (pos) editor.setPosition(pos)
       // Defer validation to next frame
       pendingValidationRef.current = yamlText
-      requestAnimationFrame(() => {
-        if (pendingValidationRef.current !== null) {
-          const issues = runValidation(pendingValidationRef.current)
-          pendingValidationRef.current = null
-          setCodeIssues(issues)
-          applyMarkers(issues)
-        }
+      const rafId = requestAnimationFrame(() => {
+        if (!mountedRef.current || pendingValidationRef.current === null) return
+        const issues = runValidation(pendingValidationRef.current)
+        pendingValidationRef.current = null
+        setCodeIssues(issues)
+        applyMarkers(issues)
       })
+      return () => cancelAnimationFrame(rafId)
     }
   }, [yamlText, runValidation, applyMarkers])
 

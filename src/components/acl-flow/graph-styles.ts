@@ -3,6 +3,11 @@
  * Pure data-mapping functions — no React or side effects.
  */
 
+/** Escape HTML special characters to prevent XSS in innerHTML nodes */
+function esc(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 /** Auth-type color ring — 5 distinct pastel palettes */
 const AUTH_COLORS: { fill: string; stroke: string; text: string }[] = [
   { fill: '#ede9fe', stroke: '#8b5cf6', text: '#5b21b6' }, // violet  — local
@@ -192,16 +197,16 @@ export function getNodeStyle(nodeId: string, data: Record<string, unknown>) {
         font-size:7px;font-weight:700;letter-spacing:0.3px;
         padding:1px 6px 1px 8px;border-radius:0 4px 0 6px;
         text-transform:uppercase;line-height:14px;
-      ">${authLabel}</div>
+      ">${esc(authLabel)}</div>
       <div style="
         font-size:10px;font-weight:700;color:${authPalette.text};
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         padding-right:36px;
-      ">${username}</div>
+      ">${esc(username)}</div>
       ${groupsLabel ? `<div style="
         font-size:8px;color:${authPalette.text};opacity:0.7;
         margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      ">${groupsLabel}</div>` : ''}
+      ">${esc(groupsLabel)}</div>` : ''}
     </div>`
 
     return {

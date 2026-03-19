@@ -37,11 +37,21 @@ export function loadState(): PersistedState | null {
     if (!configStr) return null
 
     const config = JSON.parse(configStr) as RorConfig
-    const edition = (localStorage.getItem(EDITION_KEY) as Edition) || 'enterprise'
-    const activeTab = (localStorage.getItem(TAB_KEY) as TabId) || 'getting-started'
+
+    const VALID_EDITIONS = new Set(['free', 'pro', 'enterprise'])
+    const VALID_TABS = new Set(['getting-started', 'acl-flow', 'users-groups', 'authentication', 'authorization', 'ssl-tls', 'audit', 'advanced'])
+    const VALID_DOCKS = new Set(['bottom', 'right'])
+    const VALID_ACL_VIEWS = new Set(['graph', 'form', 'code'])
+
+    const rawEdition = localStorage.getItem(EDITION_KEY)
+    const edition = (VALID_EDITIONS.has(rawEdition!) ? rawEdition : 'enterprise') as Edition
+    const rawTab = localStorage.getItem(TAB_KEY)
+    const activeTab = (VALID_TABS.has(rawTab!) ? rawTab : 'getting-started') as TabId
     const wizardSeen = localStorage.getItem(WIZARD_KEY) === 'true'
-    const yamlDock = (localStorage.getItem(DOCK_KEY) as YamlDock) || 'bottom'
-    const aclViewMode = (localStorage.getItem(ACL_VIEW_KEY) as AclViewMode) || 'graph'
+    const rawDock = localStorage.getItem(DOCK_KEY)
+    const yamlDock = (VALID_DOCKS.has(rawDock!) ? rawDock : 'bottom') as YamlDock
+    const rawAclView = localStorage.getItem(ACL_VIEW_KEY)
+    const aclViewMode = (VALID_ACL_VIEWS.has(rawAclView!) ? rawAclView : 'graph') as AclViewMode
 
     return { config, edition, activeTab, wizardSeen, yamlDock, aclViewMode }
   } catch {
