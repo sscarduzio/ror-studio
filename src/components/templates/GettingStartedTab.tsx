@@ -11,7 +11,6 @@ import type { Edition } from '@/schema/types'
 import { cn } from '@/lib/utils'
 import { styles } from '@/components/shared-styles'
 import { yamlToConfig } from '@/utils/yaml'
-import rorLogo from '@/assets/rorSVGlogotipoWhite2020.svg'
 import { WizardModal } from '@/components/wizard/WizardModal'
 import { TemplatePreviewDialog } from './TemplatePreviewDialog'
 import { templates, type TemplateDef } from './template-data'
@@ -134,28 +133,6 @@ export function GettingStartedTab() {
           <div className="flex items-start gap-8">
             {/* Left column — text content */}
             <div className="flex-1 min-w-0">
-              {/* Logo */}
-              <div className="flex items-start group cursor-default mb-6" role="img" aria-label="ReadOnlyREST Studio">
-                <div
-                  className="w-[220px] h-[28px] bg-slate-900"
-                  style={{
-                    maskImage: `url(${rorLogo})`,
-                    WebkitMaskImage: `url(${rorLogo})`,
-                    maskSize: 'contain',
-                    WebkitMaskSize: 'contain',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskPosition: 'left center',
-                    WebkitMaskPosition: 'left center',
-                  }}
-                />
-                <span
-                  className="relative -ml-[56px] mt-[14px] text-[22px] font-bold tracking-tight bg-gradient-to-br from-teal-500 to-sky-500 bg-clip-text text-transparent"
-                  style={{ filter: 'drop-shadow(0px 1px 1.5px rgba(255,255,255,0.85))' }}
-                >
-                  Studio
-                </span>
-              </div>
 
               {/* Headline */}
               <h1
