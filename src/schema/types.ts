@@ -339,7 +339,6 @@ export interface EditorState {
 
 export type TabId =
   | 'getting-started'
-  | 'access-control'
   | 'acl-flow'
   | 'users-groups'
   | 'authentication'

@@ -8,6 +8,7 @@ import { YamlPreview } from '@/components/layout/YamlPreview'
 import { ErrorPanel } from '@/components/layout/ErrorPanel'
 import { useEditorStore } from '@/store/editor-store'
 import { loadState, saveState } from '@/store/persistence'
+import { useHasContent } from '@/hooks/useHasContent'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 
 function App() {
@@ -16,24 +17,25 @@ function App() {
   const activeTab = useEditorStore((s) => s.activeTab)
   const wizardSeen = useEditorStore((s) => s.wizardSeen)
   const yamlDock = useEditorStore((s) => s.yamlDock)
-  const setConfig = useEditorStore((s) => s.setConfig)
+  const setConfigSilent = useEditorStore((s) => s.setConfigSilent)
   const setEdition = useEditorStore((s) => s.setEdition)
   const setActiveTab = useEditorStore((s) => s.setActiveTab)
   const setWizardSeen = useEditorStore((s) => s.setWizardSeen)
   const setYamlDock = useEditorStore((s) => s.setYamlDock)
   const previewVisible = useEditorStore((s) => s.previewVisible)
 
-  // Restore state from localStorage on mount
+  // Restore state from localStorage on mount — uses setConfigSilent
+  // so the initial restore doesn't pollute the undo stack
   useEffect(() => {
     const saved = loadState()
     if (saved) {
-      setConfig(saved.config)
+      setConfigSilent(saved.config)
       setEdition(saved.edition)
       setActiveTab(saved.activeTab)
       setWizardSeen(saved.wizardSeen)
       setYamlDock(saved.yamlDock)
     }
-  }, [setConfig, setEdition, setActiveTab, setWizardSeen, setYamlDock])
+  }, [setConfigSilent, setEdition, setActiveTab, setWizardSeen, setYamlDock])
 
   // Auto-save to localStorage on every change
   useEffect(() => {
@@ -73,10 +75,7 @@ function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  const hasContent = config.access_control_rules.length > 0
-    || (config.users ?? []).length > 0
-    || (config.ldaps ?? []).length > 0
-    || (config.jwt ?? []).length > 0
+  const hasContent = useHasContent()
 
   return (
     <TooltipProvider>

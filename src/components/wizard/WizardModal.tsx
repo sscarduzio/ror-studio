@@ -523,7 +523,7 @@ export function WizardModal({
 
     addBlock(block)
     setWizardSeen(true)
-    setActiveTab('access-control')
+    setActiveTab('acl-flow')
     onOpenChange(false)
     resetWizard()
     toast('Rule created')

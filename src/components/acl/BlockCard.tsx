@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, forwardRef } from 'react'
+import { useState, useRef, useEffect, useCallback, forwardRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { Plus, GripVertical, ChevronRight, MoreVertical, AlertCircle, Copy, Trash2, EyeOff, Eye, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -139,7 +139,18 @@ export function BlockCard({ block }: { block: AccessControlBlock }) {
   const index = blocks.findIndex((b) => b.id === block.id)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [upgradePrompt, setUpgradePrompt] = useState<{ type: RuleType; label: string; tier: Edition } | null>(null)
-  const rulesByCategory = getAllRulesByCategory()
+  const allRulesByCategory = getAllRulesByCategory()
+  // Filter out rule types already used in this block to prevent duplicates.
+  // YAML flattens rules as top-level keys, so duplicates cause silent data loss (last one wins).
+  const rulesByCategory = useMemo(() => {
+    const usedTypes = new Set(block.rules.map((r) => r.type))
+    const filtered = new Map<string, Array<{ type: RuleType; label: string; tier: string }>>()
+    for (const [cat, rules] of allRulesByCategory.entries()) {
+      const available = rules.filter((r) => !usedTypes.has(r.type))
+      if (available.length > 0) filtered.set(cat, available)
+    }
+    return filtered
+  }, [allRulesByCategory, block.rules])
   const fieldErrors = useFieldErrors(`access_control_rules[${index}]`)
   const nameErrors = fieldErrors.filter((e) => e.field?.endsWith('.name'))
   const ruleErrors = fieldErrors.filter((e) => e.field?.endsWith('.rules'))

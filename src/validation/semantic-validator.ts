@@ -174,7 +174,7 @@ export function validateConfig(config: RorConfig): ValidationIssue[] {
     issues.push({
       severity: 'info',
       message: 'No access control rules defined',
-      tab: 'access-control',
+      tab: 'acl-flow',
       fix: 'Add at least one access control block to get started',
     })
     // Nothing else to validate for ACL
@@ -206,12 +206,15 @@ function validateBlocks(
     const block = blocks[i]
     const blockLabel = block.name || `Block #${i + 1}`
 
+    // Skip disabled blocks — they're commented out in YAML and don't affect the running config
+    if (!block.enabled) continue
+
     // --- Unreachable block (after a catch-all) ---
     if (hitCatchAll) {
       issues.push({
         severity: 'warning',
         message: `"${blockLabel}" is unreachable — a previous block with no rules catches all requests`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}]`,
         fix: 'Move this block above the catch-all block, or add rules to the catch-all block',
         fieldId: `block-${block.id}`,
@@ -223,7 +226,7 @@ function validateBlocks(
       issues.push({
         severity: 'error',
         message: `Block #${i + 1} has no name`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}].name`,
         fix: 'Enter a unique name for this block',
         fieldId: `block-${block.id}-name`,
@@ -237,7 +240,7 @@ function validateBlocks(
         issues.push({
           severity: 'error',
           message: `Duplicate block name "${trimmedName}" (first seen at block #${seenNames.get(trimmedName)! + 1})`,
-          tab: 'access-control',
+          tab: 'acl-flow',
           field: `access_control_rules[${i}].name`,
           fix: `Rename this block to something unique`,
           fieldId: `block-${block.id}-name`,
@@ -252,7 +255,7 @@ function validateBlocks(
       issues.push({
         severity: 'error',
         message: `"${blockLabel}" has no rules`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}].rules`,
         fix: 'Add at least one rule to this block (e.g., indices, auth_key)',
         fieldId: `block-${block.id}`,
@@ -268,7 +271,7 @@ function validateBlocks(
       issues.push({
         severity: 'error',
         message: `"${blockLabel}" has an authorization rule but no authentication rule — authorization requires a logged-in user`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}].rules`,
         fix: 'Add an authentication rule (e.g., auth_key, ldap_auth) to this block',
         fieldId: `block-${block.id}`,
@@ -281,7 +284,7 @@ function validateBlocks(
       issues.push({
         severity: 'error',
         message: `"${blockLabel}" has ${authnRules.length} authentication rules — only one is allowed per block`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}].rules`,
         fix: 'Remove extra authentication rules — keep only one per block',
         fieldId: `block-${block.id}`,
@@ -296,7 +299,7 @@ function validateBlocks(
           issues.push({
             severity: 'error',
             message: `"${blockLabel}" has kibana_access combined with ${rule.type} — these are incompatible`,
-            tab: 'access-control',
+            tab: 'acl-flow',
             field: `access_control_rules[${i}].rules`,
             fix: `Remove either kibana_access or ${rule.type} from this block`,
             fieldId: `block-${block.id}`,
@@ -312,7 +315,7 @@ function validateBlocks(
       issues.push({
         severity: 'error',
         message: `"${blockLabel}" has both legacy kibana rules (kibana_access, kibana_index, etc.) and the modern composite "kibana" rule — use one or the other`,
-        tab: 'access-control',
+        tab: 'acl-flow',
         field: `access_control_rules[${i}].rules`,
         fix: 'Remove the legacy kibana_access/kibana_index/kibana_hide_apps/kibana_template_index rules and use only the composite "kibana" rule',
         fieldId: `block-${block.id}`,
@@ -362,7 +365,7 @@ function validateBlocks(
           issues.push({
             severity: 'error',
             message: `"${blockLabel}" has a proxy_auth rule with no value`,
-            tab: 'access-control',
+            tab: 'acl-flow',
             field: `access_control_rules[${i}].rules[${ri}]`,
             fix: 'Set the value to "*" (any user) or the name of a proxy_auth_configs entry',
             fieldId: ruleFieldId,
@@ -388,7 +391,7 @@ function validateBlocks(
             issues.push({
               severity: 'error',
               message: `"${blockLabel}" has invalid ${rule.type} value "${entry}"`,
-              tab: 'access-control',
+              tab: 'acl-flow',
               field: `access_control_rules[${i}].rules[${ri}]`,
               fix: 'Must be an IPv4 (e.g. 192.168.1.1), IPv6 (e.g. ::1), CIDR (e.g. 10.0.0.0/8), hostname (e.g. proxy.example.com), or wildcard (*)',
               fieldId: ruleFieldId,
@@ -405,7 +408,7 @@ function validateBlocks(
             issues.push({
               severity: 'error',
               message: `"${blockLabel}" has invalid regex "${pattern}" in ${rule.type}`,
-              tab: 'access-control',
+              tab: 'acl-flow',
               field: `access_control_rules[${i}].rules[${ri}]`,
               fix: 'Must be a valid Java-compatible regular expression (e.g. ^/api/.*, .*\\.json$)',
               fieldId: ruleFieldId,

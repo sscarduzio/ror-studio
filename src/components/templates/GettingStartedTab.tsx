@@ -70,7 +70,7 @@ export function GettingStartedTab() {
       }
     }
     setConfig(config)
-    setActiveTab('access-control')
+    setActiveTab('acl-flow')
     setPreviewOpen(false)
     setPreviewTemplate(null)
     toast(`Loaded template: ${template.title}`)
@@ -84,7 +84,7 @@ export function GettingStartedTab() {
         setImportError(`Imported with warnings: ${warnings.join(', ')}`)
       }
       setConfig(config)
-      setActiveTab('access-control')
+      setActiveTab('acl-flow')
       toast('Configuration imported')
     } catch (e) {
       setImportError(e instanceof Error ? e.message : 'Failed to parse YAML')

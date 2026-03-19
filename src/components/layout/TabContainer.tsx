@@ -1,7 +1,6 @@
 import { useEditorStore } from '@/store/editor-store'
 import { GettingStartedTab } from '@/components/templates/GettingStartedTab'
-import { AccessControlTab } from '@/components/acl/AccessControlTab'
-import { AclFlowTab } from '@/components/acl-flow/AclFlowTab'
+import { AclTab } from '@/components/acl-flow/AclTab'
 import { UsersGroupsTab } from '@/components/layout/tabs/UsersGroupsTab'
 import { AuthenticationTab } from '@/components/layout/tabs/AuthenticationTab'
 import { AuthorizationTab } from '@/components/layout/tabs/AuthorizationTab'
@@ -16,8 +15,7 @@ export function TabContainer() {
     <div className="p-6 h-full">
       <div key={activeTab} className="tab-fade-in h-full">
         {activeTab === 'getting-started' && <GettingStartedTab />}
-        {activeTab === 'access-control' && <AccessControlTab />}
-        {activeTab === 'acl-flow' && <AclFlowTab />}
+        {activeTab === 'acl-flow' && <AclTab />}
         {activeTab === 'users-groups' && <UsersGroupsTab />}
         {activeTab === 'authentication' && <AuthenticationTab />}
         {activeTab === 'authorization' && <AuthorizationTab />}

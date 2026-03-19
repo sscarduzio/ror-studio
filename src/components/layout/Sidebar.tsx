@@ -13,6 +13,7 @@ import { useEditorStore } from '@/store/editor-store'
 import type { TabId } from '@/schema/types'
 import { cn } from '@/lib/utils'
 import { useValidation } from '@/hooks/useValidation'
+import { useHasContent } from '@/hooks/useHasContent'
 import { useYamlEditor } from '@/contexts/YamlEditorContext'
 import { navigateToError } from '@/utils/navigate-to-error'
 import type { ValidationIssue } from '@/validation/types'
@@ -37,8 +38,7 @@ const tabSections: TabSection[] = [
   {
     header: 'ACL',
     tabs: [
-      { id: 'access-control', label: 'Access Control', icon: ShieldCheck },
-      { id: 'acl-flow', label: 'ACL Flow', icon: Workflow },
+      { id: 'acl-flow', label: 'ACL', icon: Workflow },
       { id: 'users-groups', label: 'Users & Groups', icon: Users },
     ],
   },
@@ -87,15 +87,10 @@ function TabBadge({ issues }: { issues: ValidationIssue[] | undefined }) {
 export function Sidebar() {
   const activeTab = useEditorStore((s) => s.activeTab)
   const setActiveTab = useEditorStore((s) => s.setActiveTab)
-  const config = useEditorStore((s) => s.config)
   const { issues, issuesByTab, errorCount, warningCount } = useValidation()
   const { revealLine } = useYamlEditor()
 
-  // Hide all sections except Getting Started when config is empty
-  const hasContent = config.access_control_rules.length > 0
-    || (config.users ?? []).length > 0
-    || (config.ldaps ?? []).length > 0
-    || (config.jwt ?? []).length > 0
+  const hasContent = useHasContent()
 
   const visibleSections = hasContent ? tabSections : tabSections.filter((s) => !s.header)
 

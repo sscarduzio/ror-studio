@@ -28,6 +28,8 @@ export interface EditorStore {
 
   // Config actions
   setConfig: (config: RorConfig) => void
+  /** Update config without pushing to undo history (for restoring state, debounced YAML edits, etc.) */
+  setConfigSilent: (config: RorConfig) => void
   resetConfig: () => void
 
   // Edition
@@ -109,6 +111,9 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 
   setConfig: (config) =>
     set((state) => ({ config, ...pushHistory(state) })),
+
+  setConfigSilent: (config) =>
+    set({ config }),
 
   resetConfig: () =>
     set((state) => ({ config: DEFAULT_CONFIG, ...pushHistory(state) })),

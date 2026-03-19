@@ -5,6 +5,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { useEditorStore } from '@/store/editor-store'
 import type { Edition } from '@/schema/types'
 import { cn } from '@/lib/utils'
+import { useHasContent } from '@/hooks/useHasContent'
 
 const editions: { value: Edition; label: string }[] = [
   { value: 'free', label: 'Free' },
@@ -17,7 +18,6 @@ const editions: { value: Edition; label: string }[] = [
 // ---------------------------------------------------------------------------
 
 function HistoryControls() {
-  const config = useEditorStore((s) => s.config)
   const undo = useEditorStore((s) => s.undo)
   const redo = useEditorStore((s) => s.redo)
   const pastLen = useEditorStore((s) => s._past.length)
@@ -25,11 +25,7 @@ function HistoryControls() {
   const hasPast = pastLen > 0
   const hasFuture = futureLen > 0
 
-  // Hide when config is empty
-  const hasContent = config.access_control_rules.length > 0
-    || (config.users ?? []).length > 0
-    || (config.ldaps ?? []).length > 0
-    || (config.jwt ?? []).length > 0
+  const hasContent = useHasContent()
   if (!hasContent) return null
 
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0
@@ -202,13 +198,8 @@ function EditionSelector({ edition, setEdition }: { edition: Edition; setEdition
 function PreviewToggle() {
   const previewVisible = useEditorStore((s) => s.previewVisible)
   const togglePreview = useEditorStore((s) => s.togglePreview)
-  const config = useEditorStore((s) => s.config)
 
-  const hasContent = config.access_control_rules.length > 0
-    || (config.users ?? []).length > 0
-    || (config.ldaps ?? []).length > 0
-    || (config.jwt ?? []).length > 0
-
+  const hasContent = useHasContent()
   if (!hasContent) return null
 
   return (
@@ -240,13 +231,9 @@ function PreviewToggle() {
 export function Header() {
   const edition = useEditorStore((s) => s.edition)
   const setEdition = useEditorStore((s) => s.setEdition)
-  const config = useEditorStore((s) => s.config)
   const [showShortcuts, setShowShortcuts] = useState(false)
 
-  const hasContent = config.access_control_rules.length > 0
-    || (config.users ?? []).length > 0
-    || (config.ldaps ?? []).length > 0
-    || (config.jwt ?? []).length > 0
+  const hasContent = useHasContent()
   const shortcutsRef = useRef<HTMLDivElement>(null)
 
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0
