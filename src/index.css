@@ -1,0 +1,245 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors - Stripe-inspired warm palette with ROR institutional teal */
+  --color-background: #f7f7f8;
+  --color-card: #ffffff;
+  --color-border: #e3e3e8;
+  --color-border-focus: #0b847a;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #5e5e6e;
+  --color-text-tertiary: #9191a0;
+  --color-accent: #0b847a;
+  --color-accent-light: #ecfdf8;
+  --color-success: #0ea371;
+  --color-success-bg: #ecfdf5;
+  --color-warning: #c2790e;
+  --color-warning-bg: #fffbeb;
+  --color-error: #e03e3e;
+  --color-error-bg: #fef2f2;
+
+  /* Tier badges */
+  --color-tier-free-bg: #f0fdf4;
+  --color-tier-free-text: #16a34a;
+  --color-tier-pro-bg: #ecfdf8;
+  --color-tier-pro-text: #0b847a;
+  --color-tier-ent-bg: #fffbeb;
+  --color-tier-ent-text: #b45309;
+
+  /* ROR variable highlighting */
+  --color-variable: #7c3aed;
+  --color-variable-bg: #f5f3ff;
+
+  /* YAML preview dark theme */
+  --color-yaml-bg: #1e1e2e;
+  --color-yaml-key: #5eead4;
+  --color-yaml-value: #a6e3a1;
+  --color-yaml-string: #f9e2af;
+  --color-yaml-punctuation: #6c7086;
+  --color-yaml-line-number: #45475a;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Radius */
+  --radius-input: 6px;
+  --radius-card: 16px;
+  --radius-lg: 24px;
+  --radius-modal: 24px;
+
+  /* Shadows - Aggressive Structural Light Mode */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.08);
+  --shadow-structural: 0 20px 60px -15px rgba(13, 148, 136, 0.15); /* Deep teal-tinted foundation shadow */
+  --shadow-structural-hover: 0 30px 80px -15px rgba(13, 148, 136, 0.25);
+  --shadow-focus: 0 0 0 3px #ecfdf8;
+
+  /* shadcn semantic tokens — required by UI components (Switch, Button, etc.) */
+  --color-primary: #0b847a;
+  --color-primary-foreground: #ffffff;
+  --color-foreground: #0f172a; /* Slate 900 for high contrast */
+  --color-input: #d1d1d8;
+  --color-ring: #0b847a;
+  --color-muted: #f1f5f9; /* Slate 100 */
+  --color-muted-foreground: #64748b; /* Slate 500 */
+  --color-destructive: #e03e3e;
+  --color-destructive-foreground: #ffffff;
+  --color-secondary: #f8fafc; /* Slate 50 */
+  --color-secondary-foreground: #0f172a;
+  --color-popover: rgba(255, 255, 255, 0.9);
+  --color-popover-foreground: #0f172a;
+  --color-accent-foreground: #0f172a;
+}
+
+@utility glass-panel {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(226, 232, 240, 0.6); /* Slate 200/60 */
+  box-shadow: var(--shadow-card);
+}
+
+@utility glass-panel-heavy {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(20, 184, 166, 0.15); /* Teal accent border */
+  box-shadow: var(--shadow-structural);
+}
+
+/* Hero YAML preview card — entrance + hover + sparkles */
+@keyframes yaml-card-enter {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(-12deg) rotateX(4deg) translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(-3deg) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+.yaml-card {
+  transform: perspective(1200px) rotateY(-3deg);
+  transform-origin: center center;
+  box-shadow: 0 8px 30px -6px rgba(13, 148, 136, 0.18), 0 0 0 1px rgba(13, 148, 136, 0.08);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: yaml-card-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+.yaml-card-wrap:hover .yaml-card {
+  transform: perspective(1200px) rotateY(3deg) rotateX(-2deg) translateY(-8px) scale(1.04);
+  box-shadow: 0 28px 60px -10px rgba(13, 148, 136, 0.32), 0 0 0 1px rgba(13, 148, 136, 0.14);
+}
+
+/* Sparkle particles — stardust on hover */
+.yaml-card-wrap { position: relative; }
+
+@keyframes sparkle-float {
+  0% { opacity: 0; transform: translate(0, 0) scale(0); }
+  20% { opacity: 1; transform: translate(var(--sx), var(--sy)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0); }
+}
+.yaml-card-wrap .sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+}
+.yaml-card-wrap:hover .sparkle {
+  animation: sparkle-float var(--dur) ease-out var(--delay) both;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.focus-ring {
+  outline: none;
+  box-shadow: var(--shadow-focus), 0 0 0 1px var(--color-border-focus);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Tab content fade-in */
+@keyframes tab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-fade-in {
+  animation: tab-fade-in 0.2s ease-out;
+}
+
+/* Toast enter animation */
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-enter {
+  animation: toast-enter 0.2s ease-out;
+}
+
+/* Validation highlight animation for navigate-to-error */
+@keyframes validation-highlight {
+  0%, 100% { box-shadow: none; }
+  25%, 75% { box-shadow: 0 0 0 3px var(--color-error), 0 0 12px rgba(224, 62, 62, 0.3); }
+}
+.validation-highlight { animation: validation-highlight 1.5s ease-in-out; }
+
+/* Return-focus highlight — yellow halo that fades away */
+@keyframes return-highlight {
+  0% { background-color: rgba(250, 204, 21, 0.25); box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4); }
+  100% { background-color: transparent; box-shadow: none; }
+}
+.return-highlight { animation: return-highlight 2s ease-out; border-radius: var(--radius-card); }
+
+/* Abstract animated enterprisey background patterns */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(40px, -60px) scale(1.1); }
+  66% { transform: translate(-30px, 30px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 15s infinite alternate ease-in-out;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.bg-grid-pattern {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
+  -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
+}
