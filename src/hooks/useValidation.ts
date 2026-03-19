@@ -133,10 +133,7 @@ export function useValidation(): ValidationResult {
     if (configJson === prevJsonRef.current) return
     prevJsonRef.current = configJson
 
-    // Clear any pending debounce
-    if (timerRef.current) clearTimeout(timerRef.current)
-
-    timerRef.current = setTimeout(() => {
+    const runValidation = () => {
       const issues = validateConfig(config)
       const yamlText = configToYaml(config)
       const lineMap = buildYamlLineMap(yamlText)
@@ -152,12 +149,24 @@ export function useValidation(): ValidationResult {
       }
 
       setResult(buildResult(issues, yamlText))
-    }, DEBOUNCE_MS)
+    }
+
+    // Run immediately on first load to avoid empty preview flash,
+    // then debounce subsequent updates for performance
+    if (result === EMPTY_RESULT) {
+      runValidation()
+      return
+    }
+
+    // Clear any pending debounce
+    if (timerRef.current) clearTimeout(timerRef.current)
+
+    timerRef.current = setTimeout(runValidation, DEBOUNCE_MS)
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [configJson, config])
+  }, [configJson, config]) // eslint-disable-line react-hooks/exhaustive-deps -- result ref is intentional
 
   return result
 }
