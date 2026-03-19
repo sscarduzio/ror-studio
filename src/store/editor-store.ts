@@ -20,6 +20,7 @@ export interface EditorStore {
   focusRuleId: string | null
   expandedBlockIds: Set<string>
   yamlDock: YamlDock
+  previewVisible: boolean
 
   // Undo/redo history (internal)
   _past: RorConfig[]
@@ -61,8 +62,10 @@ export interface EditorStore {
   updateUser: (index: number, user: UserDefinition) => void
   removeUser: (index: number) => void
 
-  // Dock position
+  // Dock position & preview visibility
   setYamlDock: (dock: YamlDock) => void
+  setPreviewVisible: (visible: boolean) => void
+  togglePreview: () => void
 
   // Generic field updater
   updateConfigField: (path: string, value: unknown) => void
@@ -100,6 +103,7 @@ export const useEditorStore = create<EditorStore>()((set) => ({
   focusRuleId: null,
   expandedBlockIds: new Set<string>(),
   yamlDock: 'right',
+  previewVisible: true,
   _past: [],
   _future: [],
 
@@ -137,6 +141,8 @@ export const useEditorStore = create<EditorStore>()((set) => ({
   }),
   setWizardSeen: (seen) => set({ wizardSeen: seen }),
   setYamlDock: (dock) => set({ yamlDock: dock }),
+  setPreviewVisible: (visible) => set({ previewVisible: visible }),
+  togglePreview: () => set((s) => ({ previewVisible: !s.previewVisible })),
 
   undo: () =>
     set((state) => {

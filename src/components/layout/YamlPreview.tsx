@@ -1,5 +1,5 @@
 import { Suspense, useRef, useCallback } from 'react'
-import { Copy, Download, ChevronDown, ChevronLeft, PanelBottom, PanelRight } from 'lucide-react'
+import { Copy, Download, PanelBottom, PanelRight } from 'lucide-react'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/toast-simple'
 import { useValidation } from '@/hooks/useValidation'
@@ -9,11 +9,10 @@ import { useEditorStore, type YamlDock } from '@/store/editor-store'
 import { cn } from '@/lib/utils'
 
 interface YamlPreviewProps {
-  onToggle?: () => void
   dock?: YamlDock
 }
 
-export function YamlPreview({ onToggle, dock = 'bottom' }: YamlPreviewProps) {
+export function YamlPreview({ dock = 'bottom' }: YamlPreviewProps) {
   const setYamlDock = useEditorStore((s) => s.setYamlDock)
   const { yamlText, issues, errorCount } = useValidation()
   const { toast } = useToast()
@@ -50,18 +49,10 @@ export function YamlPreview({ onToggle, dock = 'bottom' }: YamlPreviewProps) {
       )}>
         {/* Header bar */}
         <div className="flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-md border-b border-slate-200/50 shadow-sm z-10">
-          <button
-            onClick={onToggle}
-            className="flex items-center gap-2 text-[13px] font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider"
-          >
-            {dock === 'right' ? (
-              <ChevronLeft className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
+          <div className="flex items-center gap-2 text-[13px] font-bold text-slate-600 uppercase tracking-wider">
             Preview
-            <span className="text-slate-400 font-medium ml-1">({lineCount} lines)</span>
-          </button>
+            <span className="text-slate-400 font-medium">({lineCount} lines)</span>
+          </div>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Undo2, Redo2, HelpCircle } from 'lucide-react'
+import { Undo2, Redo2, HelpCircle, Eye, EyeOff } from 'lucide-react'
 import rorLogo from '@/assets/rorSVGlogotipoWhite2020.svg'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { useEditorStore } from '@/store/editor-store'
@@ -142,6 +142,46 @@ function HistoryControls() {
 // ---------------------------------------------------------------------------
 // Header
 // ---------------------------------------------------------------------------
+// Preview toggle — show/hide YAML preview panel
+// ---------------------------------------------------------------------------
+
+function PreviewToggle() {
+  const previewVisible = useEditorStore((s) => s.previewVisible)
+  const togglePreview = useEditorStore((s) => s.togglePreview)
+  const config = useEditorStore((s) => s.config)
+
+  const hasContent = config.access_control_rules.length > 0
+    || (config.users ?? []).length > 0
+    || (config.ldaps ?? []).length > 0
+    || (config.jwt ?? []).length > 0
+
+  if (!hasContent) return null
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={togglePreview}
+          className={cn(
+            'flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
+            previewVisible
+              ? 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100'
+              : 'bg-white/60 text-slate-500 border-slate-200/60 hover:bg-white hover:text-slate-700'
+          )}
+          aria-label={previewVisible ? 'Hide preview' : 'Show preview'}
+        >
+          {previewVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          Preview
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="bg-slate-900 border-slate-800 text-white text-xs">
+        {previewVisible ? 'Hide YAML preview' : 'Show YAML preview'}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+// ---------------------------------------------------------------------------
 
 export function Header() {
   const edition = useEditorStore((s) => s.edition)
@@ -210,8 +250,9 @@ export function Header() {
         </div>
       </div>
 
-      {/* Right: History + help */}
+      {/* Right: Preview toggle + History + help */}
       <div className="flex items-center gap-3">
+        <PreviewToggle />
         <HistoryControls />
         <div className="relative" ref={shortcutsRef}>
           <button

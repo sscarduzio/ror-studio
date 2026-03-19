@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect } from 'react'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ToastProvider } from '@/components/ui/toast-simple'
 import { Header } from '@/components/layout/Header'
@@ -8,7 +8,7 @@ import { YamlPreview } from '@/components/layout/YamlPreview'
 import { ErrorPanel } from '@/components/layout/ErrorPanel'
 import { useEditorStore } from '@/store/editor-store'
 import { loadState, saveState } from '@/store/persistence'
-import { Group, Panel, Separator, type PanelImperativeHandle } from 'react-resizable-panels'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 
 function App() {
   const config = useEditorStore((s) => s.config)
@@ -21,8 +21,7 @@ function App() {
   const setActiveTab = useEditorStore((s) => s.setActiveTab)
   const setWizardSeen = useEditorStore((s) => s.setWizardSeen)
   const setYamlDock = useEditorStore((s) => s.setYamlDock)
-
-  const yamlPanelRef = useRef<PanelImperativeHandle>(null)
+  const previewVisible = useEditorStore((s) => s.previewVisible)
 
   // Restore state from localStorage on mount
   useEffect(() => {
@@ -74,15 +73,10 @@ function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  const toggleYamlPanel = useCallback(() => {
-    const panel = yamlPanelRef.current
-    if (!panel) return
-    if (panel.isCollapsed()) {
-      panel.expand()
-    } else {
-      panel.collapse()
-    }
-  }, [])
+  const hasContent = config.access_control_rules.length > 0
+    || (config.users ?? []).length > 0
+    || (config.ldaps ?? []).length > 0
+    || (config.jwt ?? []).length > 0
 
   return (
     <TooltipProvider>
@@ -96,34 +90,37 @@ function App() {
           <div className="relative z-10 flex flex-col h-full w-full">
             <Header />
             <div className="flex-1 flex overflow-hidden">
-              <Sidebar />
+              {hasContent && <Sidebar />}
               <div className="flex-1 flex flex-col overflow-hidden bg-white/60 rounded-tl-xl shadow-sm mr-1.5 mb-1.5 border border-slate-200/40">
-                <Group orientation={yamlDock === 'right' ? 'horizontal' : 'vertical'} key={yamlDock}>
-                  <Panel defaultSize={70} minSize={30}>
-                    <div className="flex flex-col h-full overflow-hidden">
-                      <div className="flex-1 overflow-y-auto">
-                        <TabContainer />
+                {hasContent && previewVisible ? (
+                  <Group orientation={yamlDock === 'right' ? 'horizontal' : 'vertical'} key={yamlDock}>
+                    <Panel defaultSize={70} minSize={30}>
+                      <div className="flex flex-col h-full overflow-hidden">
+                        <div className="flex-1 overflow-y-auto">
+                          <TabContainer />
+                        </div>
+                        <ErrorPanel />
                       </div>
-                      <ErrorPanel />
+                    </Panel>
+                    <Separator
+                      className={
+                        yamlDock === 'right'
+                          ? 'w-1 bg-slate-200 hover:bg-teal-500/50 transition-colors cursor-col-resize'
+                          : 'h-1 bg-slate-200 hover:bg-teal-500/50 transition-colors cursor-row-resize'
+                      }
+                    />
+                    <Panel defaultSize={30} minSize={15}>
+                      <YamlPreview dock={yamlDock} />
+                    </Panel>
+                  </Group>
+                ) : (
+                  <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex-1 overflow-y-auto">
+                      <TabContainer />
                     </div>
-                  </Panel>
-                  <Separator
-                    className={
-                      yamlDock === 'right'
-                        ? 'w-1 bg-slate-200 hover:bg-teal-500/50 transition-colors cursor-col-resize'
-                        : 'h-1 bg-slate-200 hover:bg-teal-500/50 transition-colors cursor-row-resize'
-                    }
-                  />
-                  <Panel
-                    defaultSize={30}
-                    minSize={0}
-                    collapsible
-                    collapsedSize={0}
-                    panelRef={yamlPanelRef}
-                  >
-                    <YamlPreview onToggle={toggleYamlPanel} dock={yamlDock} />
-                  </Panel>
-                </Group>
+                    {hasContent && <ErrorPanel />}
+                  </div>
+                )}
               </div>
             </div>
           </div>
