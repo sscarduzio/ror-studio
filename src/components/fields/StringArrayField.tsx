@@ -46,7 +46,7 @@ export function StringArrayInput({ value, onChange, placeholder, className }: St
           key={`${tag}-${i}`}
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--color-accent-light)] text-[var(--color-accent)] text-xs font-medium"
         >
-          <HighlightedText text={tag} />
+          <HighlightedText text={typeof tag === 'string' ? tag : JSON.stringify(tag)} />
           <button
             onClick={() => removeTag(i)}
             className="hover:text-[var(--color-error)] transition-colors"
