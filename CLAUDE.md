@@ -14,9 +14,15 @@ npx vite preview --port 4501  # Serve production build (respects base path)
 
 No test runner is configured. There are no test files.
 
+## What is ROR Studio
+
+ROR Studio is a **client-side-only** companion editor for [ReadOnlyREST](https://readonlyrest.com), the security plugin for Elasticsearch and Kibana. It helps users build, validate, and export `readonlyrest.yml` configuration files through a visual interface — supporting all ReadOnlyREST editions (Free, PRO, Enterprise).
+
+**Privacy by design**: everything runs in the browser with zero backend and zero external network requests. Your security settings never leave your machine. The app works fully air-gapped — all assets including the Monaco code editor are bundled locally.
+
 ## Architecture
 
-ROR Studio is a single-page React 19 config editor for [ReadOnlyREST](https://readonlyrest.com) Elasticsearch/Kibana ACL plugin. It produces `readonlyrest.yml` files. Runs entirely in the browser — no backend. Must work fully air-gapped (zero external network requests).
+Single-page React 19 app. Vite build. No backend, no API calls, no telemetry.
 
 ### State Management
 
