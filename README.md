@@ -66,4 +66,4 @@ The `dist/` folder is a fully self-contained static site. Deploy it anywhere —
 
 ## License
 
-See [LICENSE](LICENSE) for details.
+Copyright (c) 2026 [Beshu Limited](https://readonlyrest.com) (UK). All rights reserved. See [LICENSE](LICENSE).

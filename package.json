@@ -2,6 +2,8 @@
   "name": "rorstudio",
   "private": true,
   "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Beshu Limited <info@readonlyrest.com> (https://readonlyrest.com)",
   "type": "module",
   "scripts": {
     "dev": "vite",

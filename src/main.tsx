@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Beshu Limited (UK). All rights reserved.
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { loader } from '@monaco-editor/react'
