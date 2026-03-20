@@ -36,7 +36,12 @@ export function loadState(): PersistedState | null {
     const configStr = localStorage.getItem(STORAGE_KEY)
     if (!configStr) return null
 
-    const config = JSON.parse(configStr) as RorConfig
+    const raw = JSON.parse(configStr)
+    // Sanitize: ensure required fields exist (guards against corrupted/stale localStorage)
+    const config: RorConfig = {
+      ...raw,
+      access_control_rules: Array.isArray(raw?.access_control_rules) ? raw.access_control_rules : [],
+    }
 
     const VALID_EDITIONS = new Set(['free', 'pro', 'enterprise'])
     const VALID_TABS = new Set(['getting-started', 'acl-flow', 'users-groups', 'authentication', 'authorization', 'ssl-tls', 'audit', 'advanced'])
