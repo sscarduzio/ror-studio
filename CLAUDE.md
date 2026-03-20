@@ -9,13 +9,14 @@ npm run dev        # Vite dev server on port 4500
 npm run build      # TypeScript check + Vite production build (tsc -b && vite build)
 npm run lint       # ESLint
 npx tsc -b --noEmit  # Type-check only (no emit)
+npx vite preview --port 4501  # Serve production build (respects base path)
 ```
 
 No test runner is configured. There are no test files.
 
 ## Architecture
 
-ROR Studio is a single-page React 19 config editor for [ReadOnlyREST](https://readonlyrest.com) Elasticsearch/Kibana ACL plugin. It produces `readonlyrest.yml` files. Runs entirely in the browser — no backend.
+ROR Studio is a single-page React 19 config editor for [ReadOnlyREST](https://readonlyrest.com) Elasticsearch/Kibana ACL plugin. It produces `readonlyrest.yml` files. Runs entirely in the browser — no backend. Must work fully air-gapped (zero external network requests).
 
 ### State Management
 
@@ -23,13 +24,37 @@ ROR Studio is a single-page React 19 config editor for [ReadOnlyREST](https://re
 - `config: RorConfig` — the ACL configuration being edited
 - `edition: 'free' | 'pro' | 'enterprise'` — controls which rule types are available; auto-upgrades when user adds a higher-tier rule or loads a template
 - `activeTab: TabId` — current sidebar tab
-- `yamlDock: 'bottom' | 'right'` — YAML preview panel position (Chrome DevTools-style docking)
+- `aclViewMode: 'graph' | 'form' | 'code'` — ACL tab view mode (persisted)
+- `yamlDock: 'bottom' | 'right'` — YAML preview panel position
 - Undo/redo via `_past`/`_future` arrays (limit 100), with `pushHistory()` before mutations
+- `setConfig(config)` pushes history; `setConfigSilent(config)` does not (used for initial restore and debounced Code editor updates to avoid flooding the undo stack)
 - Block CRUD: `addBlock`, `updateBlock`, `removeBlock`, `reorderBlocks`, `duplicateBlock`
 - User CRUD: `addUser`, `updateUser`, `removeUser`
 - Generic nested field updates via `updateConfigField(path, value)` using `setNestedField()`
 
-**Persistence** (`src/store/persistence.ts`): auto-saves to localStorage with 500ms debounce. Silent failure on quota exceeded.
+**Persistence** (`src/store/persistence.ts`): auto-saves to localStorage with 500ms debounce. All enum values (edition, tab, dock, view mode) are validated against known sets on load — corrupted localStorage falls back to safe defaults. Silent failure on quota exceeded.
+
+### ACL Tab — Three View Modes
+
+The ACL tab (`src/components/acl-flow/AclTab.tsx`) hosts three switchable modes behind a `ViewModeToggle`:
+
+- **Graph** (`AclFlowGraph.tsx`) — G6 flow diagram with node styles in `graph-styles.ts`
+- **Form** (`AccessControlTab`) — block card editor with drag-to-reorder
+- **Code** (`AclCodeEditor.tsx`) — read-write Monaco YAML editor with its own validation pipeline
+
+The view mode toggle (`ViewModeToggle.tsx`) is a generic reusable segmented control with sliding pill animation. Mode definitions in `acl-view-modes.ts` — adding a 4th mode = add one entry to the array.
+
+### Code Editor Validation
+
+`AclCodeEditor` runs its own 3-layer validation directly on the raw editor text (independent of the store-based `useValidation` hook):
+
+1. **YAML syntax** — `js-yaml.load()` catches malformed YAML with line/column from `YAMLException.mark`
+2. **ROR config parse** — `yamlToConfig()` catches structural issues
+3. **Full ROR semantic** — `validateConfig()` runs all domain rules, mapped to YAML lines via `buildYamlLineMap()` + `resolveFieldToLine()`
+
+Results are shown as Monaco squiggle markers + a clickable error summary bar above the editor.
+
+Important: The Code editor uses `setConfigSilent` for debounced updates (not `setConfig`) to avoid flooding the undo stack. It pushes one undo snapshot on first edit via `hasSnapshotRef`, then uses silent updates for subsequent parses. Disabled blocks are preserved from the current store when parsing (they're serialized as YAML comments and can't be recovered by `yamlToConfig`).
 
 ### Data Flow
 
@@ -54,28 +79,35 @@ User edits form → Zustand store mutation → React re-render
 
 `configToYaml()` converts internal `RorConfig` to valid `readonlyrest.yml`. Key detail: ACL blocks store rules as `{type, value}` arrays internally but YAML flattens them as top-level keys. Disabled blocks are serialized as YAML comments. Uses `js-yaml` with `indent: 2, lineWidth: -1, noRefs: true`.
 
-`yamlToConfig()` parses YAML back, handling the `readonlyrest:` wrapper, legacy key aliases, and preserving unrecognized keys in `_unrecognized`.
+`yamlToConfig()` parses YAML back, handling the `readonlyrest:` wrapper, legacy key aliases, and preserving unrecognized keys in `_unrecognized`. Note: generates new `crypto.randomUUID()` for each block on every parse — block IDs are not stable across roundtrips.
 
 ### YAML Line Mapping (`src/utils/yaml-line-map.ts`)
 
 `buildYamlLineMap()` parses YAML text line-by-line to produce a `Map<fieldPath, lineNumber>`. Paths use dotted notation without `readonlyrest.` prefix (e.g., `access_control_rules[0].name`).
 
-Critical detail: internal validator field paths don't match YAML paths (rules are flattened in YAML). `resolveFieldToLine()` in `useValidation.ts` bridges this gap — e.g., `access_control_rules[0].rules[2]` resolves to the YAML line for the 2nd rule's type key within block 0.
+Critical detail: internal validator field paths don't match YAML paths (rules are flattened in YAML). `resolveFieldToLine()` in both `useValidation.ts` and `AclCodeEditor.tsx` bridges this gap — e.g., `access_control_rules[0].rules[2]` resolves to the YAML line for the 2nd rule's type key within block 0.
 
 ### Validation
 
-- **Semantic validator** (`src/validation/semantic-validator.ts`): validates ACL blocks (names, rules, auth conflicts, connector references, kibana_access), users (empty usernames, missing auth, duplicate names, connector refs), and SSL consistency
-- **`useValidation()` hook** (`src/hooks/useValidation.ts`): debounced validation producing `ValidationResult` with issues, `issuesByTab`, counts, `yamlText`, and line numbers
+- **Semantic validator** (`src/validation/semantic-validator.ts`): validates ACL blocks (names, rules, auth conflicts, connector references, kibana_access), users (empty usernames, missing auth, duplicate names, connector refs), and SSL consistency. Disabled blocks (`!block.enabled`) are skipped.
+- **`useValidation()` hook** (`src/hooks/useValidation.ts`): debounced validation producing `ValidationResult` with issues, `issuesByTab`, counts, `yamlText`, and line numbers. Runs synchronously on first call (when `result === EMPTY_RESULT`) to avoid empty YAML preview flash on page load.
 - **`ValidationIssue`** includes `fix` (actionable guidance), `fieldId` (DOM element ID for scroll-to-fix), `line`/`endLine` (YAML line numbers)
-- **`useFieldErrors(prefix)`** hook: filters issues by field path prefix for inline display
+- **`useFieldErrors(prefix)`** hook: filters issues by field path prefix with boundary checking (prevents `[0]` from matching `[01]`)
 - **Monaco markers**: issues with line numbers become red/yellow squiggles in the Monaco YAML preview
+
+### Monaco Editor Setup (`src/utils/monaco-ror.ts`)
+
+Shared `setupRorYaml(monaco)` registers the `ror-yaml` monarch language (with ROR variable highlighting `@{...}`) and `ror-light` theme. Fully idempotent — safe to call on every editor mount. `buildValidationMarkers()` converts `ValidationIssue[]` to Monaco marker data.
+
+Monaco is bundled locally via `import * as monaco from 'monaco-editor'` + `loader.config({ monaco })` in `main.tsx`. The editor worker uses Vite's `new URL()` import pattern. No CDN dependencies.
 
 ### Edition Tier Gating
 
-Rule metadata in `src/schema/field-meta.ts` includes a `tier` field per rule type. `getAllRulesByCategory()` returns all rules regardless of edition (for the dropdown). `isRuleAboveEdition()` compares tiers. When a user adds a rule above their edition, `BlockCard` shows a confirmation dialog and auto-switches the edition on accept.
+Rule metadata in `src/schema/field-meta.ts` includes a `tier` field per rule type. `getAllRulesByCategory()` returns all rules regardless of edition (for the dropdown). `isRuleAboveEdition()` compares tiers. When a user adds a rule above their edition, `BlockCard` shows a confirmation dialog and auto-switches the edition on accept. The "Add Rule" dropdown filters out already-used rule types to prevent duplicates (YAML flattens rules as keys — duplicates cause silent data loss).
 
 ### Shared Hooks
 
+- `useHasContent()` (`src/hooks/useHasContent.ts`) — whether the config has any meaningful content (blocks, users, or connectors). Used by App, Header, Sidebar to show/hide UI sections.
 - `useConnectorNames(configKey)` (`src/hooks/useConnectorNames.ts`) — shared between RuleEditor and UsersGroupsTab for connector dropdown options
 - `AuthKeyEditor` (`src/components/acl/AuthKeyEditor.tsx`) — hash-and-lock UX for auth_key_* rules, reused in Users tab via `UserAuthKeyEditor` adapter
 
@@ -96,11 +128,19 @@ Radix UI primitives in `src/components/ui/`. Styling via Tailwind 4 + CSS custom
 
 Rule metadata (labels, descriptions, tiers, value types, placeholders) lives in `src/schema/field-meta.ts` — `getRuleMeta(type)` and `getAllRulesByCategory()`.
 
+### Graph Styles (`src/components/acl-flow/graph-styles.ts`)
+
+Pure data-mapping functions for G6 node/edge visual styles. `getNodeStyle()` and `getEdgeStyle()` are used by `AclFlowGraph`. User-card nodes use innerHTML with HTML escaping (`esc()`) to prevent XSS from malicious YAML imports.
+
 ### Getting Started / Onboarding
 
-- **Templates** (`src/components/templates/GettingStartedTab.tsx`): 5 realistic template configs with preview dialog (Monaco editor) before loading
+- **Templates** (`src/components/templates/GettingStartedTab.tsx`): 6 realistic template configs with preview dialog (Monaco editor) before loading
 - **Wizard** (`src/components/wizard/`): 5-step guided setup for first ACL block (Welcome → Name → Auth → Permissions → Review)
 
 ### Path Alias
 
 `@/` resolves to `src/` (configured in both `vite.config.ts` and `tsconfig.app.json`).
+
+### Build & Deployment
+
+Vite base path is `/ror-studio/`. Production build outputs to `dist/`. Use `npx vite preview` (not `npx serve`) to test the production build locally — it correctly handles the base path. Monaco editor + worker + codicon font are fully bundled (no CDN).
