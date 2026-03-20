@@ -4,7 +4,8 @@ const ROR_VAR_RE = /@(explode)?\{[a-zA-Z_][a-zA-Z0-9_.:/-]*\}(\.(to_lowercase|re
 
 type Segment = { type: 'text' | 'variable'; value: string }
 
-function parseVariableSegments(text: string): Segment[] {
+function parseVariableSegments(text: string | undefined | null): Segment[] {
+  if (!text) return [{ type: 'text', value: String(text ?? '') }]
   const segments: Segment[] = []
   let lastIndex = 0
   ROR_VAR_RE.lastIndex = 0
