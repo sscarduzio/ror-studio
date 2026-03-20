@@ -8,11 +8,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev        # Vite dev server on port 4500
 npm run build      # TypeScript check + Vite production build (tsc -b && vite build)
 npm run lint       # ESLint
-npx tsc -b --noEmit  # Type-check only (no emit)
+npm run knip       # Dead code detection (unused files, exports, dependencies)
+npm run check      # All three above in sequence (tsc + eslint + knip)
 npx vite preview --port 4501  # Serve production build (respects base path)
 ```
 
 No test runner is configured. There are no test files.
+
+**CI pipeline** (`.github/workflows/deploy.yml`): On every push/PR to `main`, runs `tsc`, `eslint`, and `knip` as a gate before build. Build failures, lint errors, or dead code will block deployment to GitHub Pages.
 
 ## What is ROR Studio
 

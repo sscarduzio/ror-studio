@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export interface YamlEditorContextValue {
+interface YamlEditorContextValue {
   revealLine: (line: number) => void
 }
 

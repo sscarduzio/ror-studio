@@ -329,13 +329,6 @@ export interface RorConfig {
   _unrecognized?: Record<string, unknown>
 }
 
-// Editor state wraps the config with UI concerns
-export interface EditorState {
-  config: RorConfig
-  edition: Edition
-  activeTab: TabId
-  wizardSeen: boolean
-}
 
 export type TabId =
   | 'getting-started'

@@ -59,11 +59,3 @@ export function loadState(): PersistedState | null {
   }
 }
 
-export function clearState(): void {
-  localStorage.removeItem(STORAGE_KEY)
-  localStorage.removeItem(EDITION_KEY)
-  localStorage.removeItem(TAB_KEY)
-  localStorage.removeItem(WIZARD_KEY)
-  localStorage.removeItem(DOCK_KEY)
-  localStorage.removeItem(ACL_VIEW_KEY)
-}

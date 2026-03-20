@@ -20,7 +20,7 @@ export type AuthMethod =
   | 'jwt_auth' | 'ror_kbn_auth'
   | 'proxy_auth' | 'external_authentication'
 
-export interface AuthMethodOption {
+interface AuthMethodOption {
   value: AuthMethod
   label: string
   group: string
@@ -52,12 +52,6 @@ export const AUTH_KEY_METHODS = new Set<string>([
   'auth_key_pbkdf2', 'auth_key_unix',
 ])
 
-/** External auth methods that reference a connector by name. */
-export const EXTERNAL_AUTH_METHODS = new Set<string>([
-  'ldap_auth', 'ldap_authentication', 'jwt_auth', 'ror_kbn_auth',
-  'proxy_auth', 'external_authentication',
-])
-
 /** Combined auth methods (auth + groups in one object with `name` + optional `groups_any_of`). */
 export const COMBINED_AUTH_METHODS = new Set<string>([
   'ldap_auth', 'jwt_auth', 'ror_kbn_auth',
@@ -73,11 +67,6 @@ export const ALL_USER_AUTH_METHODS: string[] = AUTH_METHODS.map((m) => m.value)
 /** Helper to treat a UserDefinition as a generic record for dynamic key access. */
 export function userFields(user: UserDefinition): Record<string, unknown> {
   return user as unknown as Record<string, unknown>
-}
-
-/** Returns true when `method` is one of the 6 local auth_key variants. */
-export function isLocalAuth(method: string): boolean {
-  return AUTH_KEY_METHODS.has(method)
 }
 
 /** Detect which auth method is set on a user (first match wins). */
@@ -99,26 +88,3 @@ export function clearAuthFields(user: UserDefinition): UserDefinition {
   return clean
 }
 
-// ---------------------------------------------------------------------------
-// Connector config key mapping
-// ---------------------------------------------------------------------------
-
-/**
- * Maps an auth method (or rule type) to the RorConfig key that holds its
- * connector definitions.  Used by the rule editor and the ACL flow graph.
- */
-export const CONNECTOR_CONFIG_KEY: Record<string, string> = {
-  ldap_auth: 'ldaps',
-  ldap_authentication: 'ldaps',
-  ldap_authorization: 'ldaps',
-  jwt_auth: 'jwt',
-  jwt_authentication: 'jwt',
-  jwt_authorization: 'jwt',
-  ror_kbn_auth: 'ror_kbn',
-  ror_kbn_authentication: 'ror_kbn',
-  ror_kbn_authorization: 'ror_kbn',
-  proxy_auth: 'proxy_auth_configs',
-  external_authentication: 'external_authentication_service_configs',
-  groups_provider_authorization: 'user_groups_providers',
-  external_authorization: 'user_groups_providers',
-}

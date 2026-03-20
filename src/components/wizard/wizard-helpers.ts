@@ -18,8 +18,6 @@ export const TOTAL_STEPS = STEP_LABELS.length
 
 export const NAME_SUGGESTIONS = ['admin_access', 'devops_team', 'readonly_public']
 
-export const INDEX_SUGGESTIONS = ['*', 'logstash-*', 'filebeat-*']
-
 export function authMethodLabel(method: AuthMethod): string {
   switch (method) {
     case 'auth_key': return 'Username & Password'

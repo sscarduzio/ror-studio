@@ -3,7 +3,7 @@ import type { RorConfig } from '@/schema/types'
 import { useEditorStore } from '@/store/editor-store'
 import { EMPTY_LDAPS, EMPTY_JWTS, EMPTY_ROR_KBNS, EMPTY_PROXY_AUTHS, EMPTY_EXT_AUTHS, EMPTY_USER_GROUPS } from '@/schema/empty-defaults'
 
-export const CONNECTOR_SELECTORS: Record<string, (s: { config: RorConfig }) => Array<{ name: string }>> = {
+const CONNECTOR_SELECTORS: Record<string, (s: { config: RorConfig }) => Array<{ name: string }>> = {
   ldaps: (s) => s.config.ldaps ?? EMPTY_LDAPS,
   jwt: (s) => s.config.jwt ?? EMPTY_JWTS,
   ror_kbn: (s) => s.config.ror_kbn ?? EMPTY_ROR_KBNS,

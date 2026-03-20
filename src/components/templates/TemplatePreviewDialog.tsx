@@ -29,7 +29,7 @@ function TierBadge({ tier }: { tier: Edition }) {
   )
 }
 
-const handleEditorMount: OnMount = (editor, monaco) => {
+const handleEditorMount: OnMount = (_editor, monaco) => {
   monaco.editor.defineTheme('ror-dark', {
     base: 'vs-dark',
     inherit: true,

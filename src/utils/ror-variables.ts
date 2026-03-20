@@ -2,9 +2,9 @@ import React from 'react'
 
 const ROR_VAR_RE = /@(explode)?\{[a-zA-Z_][a-zA-Z0-9_.:/-]*\}(\.(to_lowercase|replace_first\([^)]*\)|replace_all\([^)]*\)))*/g
 
-export type Segment = { type: 'text' | 'variable'; value: string }
+type Segment = { type: 'text' | 'variable'; value: string }
 
-export function parseVariableSegments(text: string): Segment[] {
+function parseVariableSegments(text: string): Segment[] {
   const segments: Segment[] = []
   let lastIndex = 0
   ROR_VAR_RE.lastIndex = 0

@@ -10,7 +10,7 @@ const HISTORY_LIMIT = 100
 
 export type YamlDock = 'bottom' | 'right'
 
-export interface EditorStore {
+interface EditorStore {
   // State
   config: RorConfig
   edition: Edition

@@ -1,7 +1,9 @@
-name: Deploy to GitHub Pages
+name: Check & Deploy to GitHub Pages
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -15,7 +17,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    name: Type-check, Lint & Dead code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: TypeScript (strict, noUnusedLocals, noUnusedParameters)
+        run: npx tsc -b --noEmit
+      - name: ESLint
+        run: npm run lint
+      - name: Knip (unused files, exports, dependencies)
+        run: npm run knip
+
   build:
+    name: Build
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +51,10 @@ jobs:
           path: dist
 
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

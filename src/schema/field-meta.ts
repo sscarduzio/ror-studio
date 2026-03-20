@@ -16,7 +16,7 @@ export interface RuleFieldMeta {
   deprecationHint?: string
 }
 
-export const RULE_METADATA: RuleFieldMeta[] = [
+const RULE_METADATA: RuleFieldMeta[] = [
   // === Authentication Rules ===
   {
     type: 'auth_key',
@@ -571,7 +571,7 @@ export const RULE_METADATA: RuleFieldMeta[] = [
   },
 ]
 
-export const RULE_META_MAP = new Map(RULE_METADATA.map((m) => [m.type, m]))
+const RULE_META_MAP = new Map(RULE_METADATA.map((m) => [m.type, m]))
 
 export function getRuleMeta(type: RuleType): RuleFieldMeta | undefined {
   return RULE_META_MAP.get(type)
